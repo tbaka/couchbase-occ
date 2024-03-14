@@ -1,0 +1,26 @@
+---
+- name: configure service file
+  template:
+    src: 'templates/couchbase.service'
+    dest: '/etc/systemd/system/couchbase.service'
+
+- name: mkdir docker-compose
+  file: 
+    path: /etc/docker/compose/couchbase
+    state: directory
+
+- name: add docker compose file
+  template: 
+    src: 'templates/docker-compose.yml'
+    dest: '/etc/docker/compose/couchbase/docker-compose.yml'
+
+- name: bounce systemd
+  systemd:
+    daemon_reload: true
+
+- name: enable and start the service
+  systemd: 
+    name: couchbase.service
+    enabled: yes
+    state: started
+

@@ -1,0 +1,102 @@
+---
+- name: make couchbase-cli dir
+  file: 
+    path: /opt/couchbase/bin/couchbase-cli
+    mode: directory
+
+
+- name: unpack couchbase-cli tar
+  unarchive: 
+    src: https://packages.couchbase.com/releases/7.2.2/couchbase-server-tools_7.2.2-linux_x86_64.tar.gz
+    dest: /opt/couchbase/bin/couchbase-cli
+    remote_src: true
+
+- name: init couchbase provisioner node
+  shell: | 
+    /opt/couchbase/bin/couchbase-cli node-init -c {{ couchbase_data.server.instance[0].ipv4[0] }} \
+    -u Administrator -p {{ couchbase_admin_pass }} \
+    --node-init-data-path /opt/couchbase/var/lib/couchbase/data \
+    --node-init-index-path /opt/couchbase/var/lib/couchbase/data \
+    --node-init-eventing-path /opt/couchbase/var/lib/couchbase/data \
+    --node-init-analytics-path /opt/couchbase/var/lib/couchbase/data \
+    --node-init-java-home /opt/couchbase/bin/java \
+    --node-init-hostname node1-{{ couchbase_data.server[count].instance.hostname }}.com \
+    --ipv4
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+
+- name: init the couchbase cluster
+  shell: |
+    /opt/couchbase/bin/couchbase-cli cluster-init -c {{ couchbase_data.server.instance[0].ipv4[0] }} \
+    --cluster-username Administrator \
+    --cluster-password {{ couchbase_admin_pass }} \
+    --services data,index,query \
+    --cluster-ramsize 512 \
+    --cluster-index-ramsize 256
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+
+- name: add node 2
+  shell: |
+    /opt/couchbase/bin/couchbase-cli server-add -c {{ couchbase_data.server.instance[1].ipv4[0] }}:8091 \
+    --username Administrator \
+    --password {{ couchbase_admin_pass }} \
+    --server-add https://{{ couchbase_data.server.instance[1].ipv4[0] }}:18091 \
+    --server-add-username tempName \
+    --server-add-password tempPassword \
+    --services data
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+
+- name: rebalance node 2
+  shell: |
+    couchbase-cli rebalance -c {{ couchbase_data.server.instance[1].ipv4[0] }}:8091 \
+    --username Administrator \
+    --password {{ couchbase_admin_pass }}
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+
+- name: add node 3
+  shell: |
+    /opt/couchbase/bin/couchbase-cli server-add -c {{ couchbase_data.server.instance[2].ipv4[0] }}:8091 \
+    --username Administrator \
+    --password {{ couchbase_admin_pass }} \
+    --server-add https://{{ couchbase_data.server.instance[2].ipv4[0] }}:18091 \
+    --server-add-username tempName \
+    --server-add-password tempPassword \
+    --services index
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+
+- name: rebalance node 3
+  shell: |
+    couchbase-cli rebalance -c {{ couchbase_data.server.instance[2].ipv4[0] }}:8091 \
+    --username Administrator \
+    --password {{ couchbase_admin_pass }}
+  register: result
+  until: "result is not failed"
+  retries: 3
+  delay: 3
+  run_once: true
+  delegate_to: "{{ groups['couchbase_cluster'][0] }}"
+

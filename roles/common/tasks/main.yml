@@ -1,0 +1,52 @@
+---
+- name: configure hostname for cluster nodes
+  hostname: 
+    use: systemd 
+    name: '{{ couchbase_data.server[count].instance.hostname }}'
+  run_once: true
+  delegate_to: '{{ item }}'
+  loop: "{{ groups['couchbase_cluster'] }}"
+  loop_control:
+    index_var: count
+
+- name: update /etc/hosts on all of the nodes
+  blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} couchbase servers"
+    block: |
+      #jinja2: trim_blocks:False
+      # couchbase
+      {%- for count in range(servers) %}
+      {{ couchbase_data.server[count].instance.ip_priv1 }} {{ couchbase_data.server[count].instance.hostname }}
+      {%- endfor %}  
+
+- name: apt update
+  apt:
+    update_cache: full
+
+- name: apt upgrade
+  apt: 
+    upgrade: full
+
+# this is qol for dev / hacking
+- name: install basic packages
+  apt:
+    pkg:
+    - htop
+    - rsync
+    - software-properties-common  
+    - gnupg2
+    - ssl-cert
+    - python3-passlib
+    - ufw
+
+- name: secure ssh configs
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.search }}"
+    line: "{{ item.replace }}"
+  loop:
+    - { search: '^\#?PermitRootLogin (yes|no)', replace: 'PermitRootLogin without-password' }
+    - { search: '^\#?PasswordAuthentication (yes|no)', replace: 'PasswordAuthentication no' }
+    - { search: '^\#?PubkeyAuthentication (yes|no)', replace: 'PubkeyAuthentication yes' }
+  notify: restart ssh

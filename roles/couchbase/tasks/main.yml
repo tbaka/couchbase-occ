@@ -1,0 +1,6 @@
+---
+- name: install couchbase
+  import_tasks: couchbase_install.yml
+
+- name: configure couchbase 
+  import_tasks: couchbase_config.yml

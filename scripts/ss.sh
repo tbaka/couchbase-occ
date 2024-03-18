@@ -8,7 +8,6 @@ trap "cleanup $? $LINENO" EXIT
 # <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
 # <UDF name="clusterheader" label="Cluster Settings" default="Yes" header="Yes">
 # <UDF name="add_ssh_keys" label="Add Account SSH Keys to All Nodes?" oneof="yes,no"  default="yes" />
-# <UDF name="cluster_size" label="Total instance count" default="6" oneof="6" />
 # <UDF name="servers" label="Couchbase Server count" default="5" oneOf="5" />
 
 # git repo

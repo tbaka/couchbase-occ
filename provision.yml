@@ -7,7 +7,7 @@
     - group_vars/couchbase/secret_vars
 
   vars: 
-    count: '{{ servers -1 }}' # udf 
+    count: '{{ servers - 1 }}' # udf 
     
   tasks: 
   - name: create couchbase cluster

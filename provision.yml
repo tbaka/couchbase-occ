@@ -41,7 +41,7 @@
         #jinja2: trim_blocks:False
         couchbase_data:
           server:
-            {%- for count in range(count) %}
+            {%- for count in range(count | int) %}
             - couchbase-server-{{ count + 1 }}:
               instance:
                 hostname: {{ cluster_info.results[count].instance.label | replace('_', '-') }}
@@ -64,8 +64,8 @@
         #jinja2: trim_blocks:False
         [couchbase_cluster]
         localhost ansible_connection=local user=root
-        {%- for count in range(count - 1) %}
-        {{ cluster_info.results[count + 1].instance.ipv4[0] }}
+        {%- for count in range(count | int) %}
+        {{ cluster_info.results[count].instance.ipv4[0] }}
         {%- endfor %}
 
   - name: wait for port 22 to become open

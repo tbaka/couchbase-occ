@@ -31,7 +31,7 @@
       api_token: '{{ api_token }}'
       label: '{{ instance_prefix }}-{{ item | int }}-{{ uuid }}'
     register: cluster_info
-    with_sequence: count='{{ count }}'
+    with_sequence: count='{{ count | int + 1 }}'
 
   - name: update group_vars with server variables
     blockinfile:

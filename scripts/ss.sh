@@ -7,7 +7,6 @@ trap "cleanup $? $LINENO" EXIT
 # <UDF name="sudo_username" label="The limited sudo user to be created in the cluster" />
 # <UDF name="email_address" label="Email Address" example="Example: user@domain.tld" />
 # <UDF name="clusterheader" label="Cluster Settings" default="Yes" header="Yes">
-# <UDF name="add_ssh_keys" label="Add Account SSH Keys to All Nodes?" oneof="yes,no"  default="yes" />
 # <UDF name="servers" label="Couchbase Server count" default="5" oneOf="5" />
 
 # git repo

@@ -41,8 +41,8 @@
         #jinja2: trim_blocks:False
         couchbase_data:
           server:
-            {%- for count in range(count | int) %}
-            - couchbase-server-{{ count + 1 }}:
+            {%- for count in range(count | int + 1) %}
+            - couchbase-server-{{ count }}:
               instance:
                 hostname: {{ cluster_info.results[count].instance.label | replace('_', '-') }}
                 ip_pub1: {{ cluster_info.results[count].instance.ipv4[0] }}

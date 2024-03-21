@@ -65,7 +65,7 @@
         [couchbase_cluster]
         localhost ansible_connection=local user=root
         {%- for count in range(count | int) %}
-        {{ cluster_info.results[count].instance.ipv4[0] }}
+        {{ cluster_info.results[count + 1].instance.ipv4[0] }}
         {%- endfor %}
 
   - name: wait for port 22 to become open

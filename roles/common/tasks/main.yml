@@ -22,11 +22,11 @@
 
 - name: apt update
   apt:
-    update_cache: full
+    update_cache: true
 
 - name: apt upgrade
   apt: 
-    upgrade: full
+    upgrade: true
 
 # this is qol for dev / hacking
 - name: install basic packages

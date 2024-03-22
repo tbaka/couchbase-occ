@@ -1,18 +1,9 @@
 ---
-- name: make couchbase-cli dir
-  file: 
-    path: /opt/couchbase/bin/couchbase-cli
-    mode: directory
-
-- name: unpack couchbase-cli tar
-  unarchive: 
-    src: https://packages.couchbase.com/releases/7.2.2/couchbase-server-tools_7.2.2-linux_x86_64.tar.gz
-    dest: /opt/couchbase/bin/couchbase-cli
-    remote_src: true
-
+# run all couchbase-cli commands against the docker containers
+#
 - name: init couchbase provisioner node
   shell: | 
-    /opt/couchbase/bin/couchbase-cli node-init -c {{ couchbase_data.server.instance[0].ipv4[0] }} \
+    cbc couchbase-cli node-init -c {{ couchbase_data.server[0].instance.ip_pub1 }} \
     -u Administrator -p {{ couchbase_admin_pass }} \
     --node-init-data-path /opt/couchbase/var/lib/couchbase/data \
     --node-init-index-path /opt/couchbase/var/lib/couchbase/data \
